@@ -73,18 +73,21 @@ impl<
         'a,
         Proto: std::fmt::Debug + ProxiedWithPresence + ?Sized + 'a,
         Inner: Matcher<ActualT = View<'a, Proto>>,
-    > Matcher for IsSetWithMatcher<'a, Proto, Inner>
+    > Matcher2 for IsSetWithMatcher<'a, Proto, Inner>
 {
-    type ActualT = protobuf::FieldEntry<'a, Proto>;
+    type ActualT = &'a protobuf::FieldEntry<'a, Proto>;
 
-    fn matches(&self, actual: &Self::ActualT) -> MatcherResult {
+    fn matches(&self, actual: Self::ActualT) -> MatcherResult {
         if actual.is_set() {
             self.0.matches(&actual.get())
         } else {
             false.into()
         }
     }
-    fn describe(&self, _m: MatcherResult) -> String {
-        todo!()
-    }
+}
+
+trait Matcher2{
+    type ActualT: Copy + Debug;
+
+    fn matches(&self, actual: Self::ActualT) -> MatcherResult;
 }
